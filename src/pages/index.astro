@@ -1,11 +1,204 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// src/pages/index.astro
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Minecraft 서버 상태</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <main class="container mx-auto p-8 flex flex-col items-center min-h-screen">
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
+            <div class="server-card" id="java-server">
+                <h2>Java Server</h2>
+                <img id="java-icon" class="server-icon" src="../src/assets/default_icon.png" alt="서버 아이콘">
+                <div class="server-info">
+                    <p id="java-address">minecraft.pixelhize.xyz</p>
+                    <p id="java-status"><span class="status-loading">로딩 중...</span></p>
+                    <p id="java-version"></p>
+                    <p id="java-players"></p>
+                    <p id="java-ping"></p>
+                </div>
+                <div id="java-player-list" class="player-list"></div>
+            </div>
+
+            <div class="server-card" id="bedrock-server">
+                <h2>Bedrock Server</h2>
+                <img id="bedrock-icon" class="server-icon" src="../src/assets/default_icon.png" alt="서버 아이콘">
+                <div class="server-info">
+                    <p id="bedrock-address">minecraft.pixelhize.xyz</p>
+                    <p id="bedrock-status"><span class="status-loading">로딩 중...</span></p>
+                    <p id="bedrock-version"></p>
+                    <p id="bedrock-players"></p>
+                    <p id="bedrock-ping"></p>
+                </div>
+                <div id="bedrock-player-list" class="player-list"></div>
+            </div>
+        </div>
+        <footer class="text-center mt-8 mb-4 text-gray-600">
+            developer by pixelhize
+        </footer>
+    </main>
+
+    <style>
+        .server-card {
+            @apply bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
+            @apply border border-gray-100 backdrop-blur-sm bg-opacity-90;
+        }
+
+        .server-card h2 {
+            @apply text-2xl font-bold mb-4 text-gray-800;
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
+        }
+
+        .server-icon {
+            @apply w-16 h-16 mx-auto mb-4 rounded-lg shadow-md;
+        }
+
+        .server-info {
+            @apply space-y-2 mb-4;
+        }
+
+        .server-info p {
+            @apply text-gray-700 font-medium;
+        }
+
+        .status-online {
+            @apply text-green-500 font-semibold;
+        }
+
+        .status-offline {
+            @apply text-red-500 font-semibold;
+        }
+
+        .status-loading {
+            @apply text-gray-400;
+        }
+
+        .player-list {
+            @apply mt-4 p-3 bg-gray-50 rounded-lg max-h-40 overflow-y-auto;
+            @apply border border-gray-100;
+        }
+
+        .player-item {
+            @apply py-1 px-2 border-b border-gray-100 last:border-none;
+            @apply text-gray-700 text-sm;
+        }
+    </style>
+
+    <script>
+		import Swal from 'sweetalert2';
+
+        const getServerStatus = async (url: string): Promise<any> => {
+            try {
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'minecraft/1.0' }
+                });
+                return response.json();
+            } catch (error) {
+                console.error('Error fetching server status:', error);
+                return { online: false };
+            }
+        };
+
+        const setServerIcon = (iconElement: HTMLImageElement, iconData: string | null): void => {
+    		if (iconData) {
+    		    const img = new Image();
+    		    img.onload = () => {
+    		        if (iconElement) iconElement.src = `data:image/png;base64,${iconData}`;
+    		    };
+    		    img.onerror = () => {
+    		        if (iconElement) iconElement.src = '../src/assets/default_icon.png';
+    		    };
+    		    img.src = `data:image/png;base64,${iconData}`;
+    		} else {
+    		    if (iconElement) iconElement.src = '../src/assets/default_icon.png';
+    		}
+        };
+
+        const displayPlayerList = (players: { list: string[] } | null, elementId: string): void => {
+			    const playerList = document.getElementById(elementId);
+			    if (!playerList) return;
+			    playerList.innerHTML = '';
+
+			    if (players?.list) {
+			        players.list.forEach(player => {
+			            const playerItem = document.createElement('div');
+			            playerItem.className = 'player-item';
+			            playerItem.textContent = player;
+			            playerList.appendChild(playerItem);
+			        });
+			    }
+			};
+
+	        const updateStatus = async (): Promise<void> => {
+	    Swal.fire({
+	        title: '서버 상태 확인 중...',
+	        text: '잠시만 기다려주세요.',
+	        didOpen: () => Swal.showLoading(),
+	        allowOutsideClick: false,
+	        allowEscapeKey: false
+	    });
+
+	    try {
+	        const [javaStatus, bedrockStatus] = await Promise.all([
+	            getServerStatus('https://api.mcsrvstat.us/3/minecraft.pixelhize.xyz'),
+	            getServerStatus('https://api.mcsrvstat.us/bedrock/3/minecraft.pixelhize.xyz')
+	        ]);
+
+	        const javaIcon = document.getElementById('java-icon') as HTMLImageElement;
+	        const bedrockIcon = document.getElementById('bedrock-icon') as HTMLImageElement;
+
+	        if (javaStatus.online) {
+	            document.getElementById('java-status')!.innerHTML = '<span class="status-online">온라인</span>';
+	            document.getElementById('java-version')!.textContent = `버전: ${javaStatus.version || '알 수 없음'}`;
+	            document.getElementById('java-players')!.textContent = `플레이어: ${javaStatus.players.online} / ${javaStatus.players.max}`;
+	            document.getElementById('java-ping')!.textContent = `핑: ${javaStatus.debug?.ping || '-'} ms`;
+	            if (javaIcon) setServerIcon(javaIcon, javaStatus.icon);
+	            displayPlayerList(javaStatus.players, 'java-player-list');
+	        } else {
+	            document.getElementById('java-status')!.innerHTML = '<span class="status-offline">오프라인</span>';
+	            document.getElementById('java-version')!.textContent = '버전: -';
+	            document.getElementById('java-players')!.textContent = '플레이어: -';
+	            document.getElementById('java-ping')!.textContent = '핑: -';
+	            if (javaIcon) javaIcon.src = '../src/assets/default_icon.png';
+	            document.getElementById('java-player-list')!.innerHTML = '';
+	        }
+
+	        if (bedrockStatus.online) {
+	            document.getElementById('bedrock-status')!.innerHTML = '<span class="status-online">온라인</span>';
+	            document.getElementById('bedrock-version')!.textContent = `버전: ${bedrockStatus.version || '알 수 없음'}`;
+	            document.getElementById('bedrock-players')!.textContent = `플레이어: ${bedrockStatus.players.online} / ${bedrockStatus.players.max}`;
+	            document.getElementById('bedrock-ping')!.textContent = `핑: ${bedrockStatus.debug?.ping || '지원 안함'} ms`;
+	            if (bedrockIcon) setServerIcon(bedrockIcon, bedrockStatus.icon);
+	            displayPlayerList(bedrockStatus.players, 'bedrock-player-list');
+	        } else {
+	            document.getElementById('bedrock-status')!.innerHTML = '<span class="status-offline">오프라인</span>';
+	            document.getElementById('bedrock-version')!.textContent = '버전: -';
+	            document.getElementById('bedrock-players')!.textContent = '플레이어: -';
+	            document.getElementById('bedrock-ping')!.textContent = '핑: -';
+	            if (bedrockIcon) bedrockIcon.src = '../src/assets/default_icon.png';
+	            document.getElementById('bedrock-player-list')!.innerHTML = '';
+	        }
+
+	        Swal.close();
+	    } catch (error) {
+	        console.error('Error updating server status:', error);
+	        Swal.fire({
+	            icon: 'error',
+	            title: '오류 발생',
+	            text: '서버 상태를 확인하는 중 문제가 발생했습니다.',
+	        });
+	    }
+	};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus();
+            setInterval(updateStatus, 60000);
+        });
+    </script>
+</body>
+</html>
