@@ -10,11 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-    <main class="container mx-auto p-8 flex flex-col items-center min-h-screen">
+    <main class="container mx-auto p-8 flex flex-col justify-center items-center min-h-screen">
         <div class="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
             <div class="server-card" id="java-server">
                 <h2>Java Server</h2>
-                <img id="java-icon" class="server-icon" src="./src/assets/default_icon.png" alt="서버 아이콘">
+                <img id="java-icon" class="server-icon" src="https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg" alt="서버 아이콘">
                 <div class="server-info">
                     <p id="java-address">minecraft.pixelhize.xyz</p>
                     <p id="java-status"><span class="status-loading">로딩 중...</span></p>
@@ -27,7 +27,7 @@
 
             <div class="server-card" id="bedrock-server">
                 <h2>Bedrock Server</h2>
-                <img id="bedrock-icon" class="server-icon" src="./src/assets/default_icon.png" alt="서버 아이콘">
+                <img id="bedrock-icon" class="server-icon" src="https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg" alt="서버 아이콘">
                 <div class="server-info">
                     <p id="bedrock-address">minecraft.pixelhize.xyz</p>
                     <p id="bedrock-status"><span class="status-loading">로딩 중...</span></p>
@@ -111,11 +111,11 @@
     		        if (iconElement) iconElement.src = `data:image/png;base64,${iconData}`;
     		    };
     		    img.onerror = () => {
-    		        if (iconElement) iconElement.src = './src/assets/default_icon.png';
+    		        if (iconElement) iconElement.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
     		    };
     		    img.src = `data:image/png;base64,${iconData}`;
     		} else {
-    		    if (iconElement) iconElement.src = './src/assets/default_icon.png';
+    		    if (iconElement) iconElement.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
     		}
         };
 
@@ -164,7 +164,7 @@
 	            document.getElementById('java-version')!.textContent = '버전: -';
 	            document.getElementById('java-players')!.textContent = '플레이어: -';
 	            document.getElementById('java-ping')!.textContent = '핑: -';
-	            if (javaIcon) javaIcon.src = './src/assets/default_icon.png';
+	            if (javaIcon) javaIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
 	            document.getElementById('java-player-list')!.innerHTML = '';
 	        }
 
@@ -180,7 +180,7 @@
 	            document.getElementById('bedrock-version')!.textContent = '버전: -';
 	            document.getElementById('bedrock-players')!.textContent = '플레이어: -';
 	            document.getElementById('bedrock-ping')!.textContent = '핑: -';
-	            if (bedrockIcon) bedrockIcon.src = './src/assets/default_icon.png';
+	            if (bedrockIcon) bedrockIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
 	            document.getElementById('bedrock-player-list')!.innerHTML = '';
 	        }
 
