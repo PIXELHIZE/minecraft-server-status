@@ -69,11 +69,13 @@
         }
 
         .status-online {
-            @apply text-green-500 font-semibold;
+            @apply font-semibold;
+            color: #4ade80;
         }
 
         .status-offline {
-            @apply text-red-500 font-semibold;
+            @apply font-semibold;
+            color: #f87171;
         }
 
         .status-loading {
@@ -92,9 +94,9 @@
     </style>
 
     <script>
-		import Swal from 'sweetalert2';
+        import Swal from 'sweetalert2';
 
-        const getServerStatus = async (url: string): Promise<any> => {
+        const getServerStatus = async (url) => {
             try {
                 const response = await fetch(url, {
                     headers: { 'User-Agent': 'minecraft/1.0' }
@@ -106,96 +108,84 @@
             }
         };
 
-        const setServerIcon = (iconElement: HTMLImageElement, iconData: string | null): void => {
-    		if (iconData) {
-    		    const img = new Image();
-    		    img.onload = () => {
-    		        if (iconElement) iconElement.src = `data:image/png;base64,${iconData}`;
-    		    };
-    		    img.onerror = () => {
-    		        if (iconElement) iconElement.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
-    		    };
-    		    img.src = `data:image/png;base64,${iconData}`;
-    		} else {
-    		    if (iconElement) iconElement.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
-    		}
+        // 플레이어 목록에 각 객체의 name을 표시하도록 수정
+        const displayPlayerList = (players, elementId) => {
+            const playerList = document.getElementById(elementId);
+            if (!playerList) return;
+            playerList.innerHTML = '';
+
+            if (players?.list && players.list.length > 0) {
+                players.list.forEach(player => {
+                    const playerItem = document.createElement('div');
+                    playerItem.className = 'player-item';
+                    playerItem.textContent = player.name; // player.name을 사용
+                    playerList.appendChild(playerItem);
+                });
+            }
         };
 
-        const displayPlayerList = (players: { list: string[] } | null, elementId: string): void => {
-			    const playerList = document.getElementById(elementId);
-			    if (!playerList) return;
-			    playerList.innerHTML = '';
+        const updateStatus = async () => {
+            Swal.fire({
+                title: '서버 상태 확인 중...',
+                text: '잠시만 기다려주세요.',
+                didOpen: () => Swal.showLoading(),
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
 
-			    if (players?.list) {
-			        players.list.forEach(player => {
-			            const playerItem = document.createElement('div');
-			            playerItem.className = 'player-item';
-			            playerItem.textContent = player;
-			            playerList.appendChild(playerItem);
-			        });
-			    }
-			};
+            try {
+                const [javaStatus, bedrockStatus] = await Promise.all([
+                    getServerStatus('https://api.mcsrvstat.us/3/minecraft.pixelhize.xyz'),
+                    getServerStatus('https://api.mcsrvstat.us/3/sunrintmc.byeolki.me')
+                ]);
 
-	        const updateStatus = async (): Promise<void> => {
-	    Swal.fire({
-	        title: '서버 상태 확인 중...',
-	        text: '잠시만 기다려주세요.',
-	        didOpen: () => Swal.showLoading(),
-	        allowOutsideClick: false,
-	        allowEscapeKey: false
-	    });
+                const javaIcon = document.getElementById('java-icon');
+                const bedrockIcon = document.getElementById('bedrock-icon');
 
-	    try {
-	        const [javaStatus, bedrockStatus] = await Promise.all([
-	            getServerStatus('https://api.mcsrvstat.us/3/minecraft.pixelhize.xyz'),
-	            getServerStatus('https://api.mcsrvstat.us/3/sunrintmc.byeolki.me')
-	        ]);
+                if (javaStatus.online) {
+                    document.getElementById('java-status').innerHTML = '<span class="status-online">온라인</span>';
+                    document.getElementById('java-version').textContent = `버전: ${javaStatus.version || '알 수 없음'}`;
+                    document.getElementById('java-players').textContent = `플레이어: ${javaStatus.players.online} / ${javaStatus.players.max}`;
+                    document.getElementById('java-ping').textContent = `핑: ${javaStatus.debug?.ping || '-'}`;
+                    // 서버 아이콘 URL로 직접 설정 (반환된 icon 값 사용 X)
+                    if (javaIcon) javaIcon.src = 'https://api.mcsrvstat.us/icon/minecraft.pixelhize.xyz';
+                    displayPlayerList(javaStatus.players, 'java-player-list');
+                } else {
+                    document.getElementById('java-status').innerHTML = '<span class="status-offline">오프라인</span>';
+                    document.getElementById('java-version').textContent = '버전: -';
+                    document.getElementById('java-players').textContent = '플레이어: -';
+                    document.getElementById('java-ping').textContent = '핑: -';
+                    if (javaIcon) javaIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
+                    document.getElementById('java-player-list').innerHTML = '';
+                }
 
-	        const javaIcon = document.getElementById('java-icon') as HTMLImageElement;
-	        const bedrockIcon = document.getElementById('bedrock-icon') as HTMLImageElement;
+                if (bedrockStatus.online) {
+                    document.getElementById('bedrock-status').innerHTML = '<span class="status-online">온라인</span>';
+                    document.getElementById('bedrock-version').textContent = `버전: ${bedrockStatus.version || '알 수 없음'}`;
+                    document.getElementById('bedrock-players').textContent = `플레이어: ${bedrockStatus.players.online} / ${bedrockStatus.players.max}`;
+                    document.getElementById('bedrock-ping').textContent = `핑: ${bedrockStatus.debug?.ping || '지원 안함'}`;
+                    // 베드락 서버 아이콘도 필요에 따라 직접 설정 (예: bedrockStatus.icon 사용 대신)
+                    if (bedrockIcon) bedrockIcon.src = 'https://api.mcsrvstat.us/icon/sunrintmc.byeolki.me';
+                    displayPlayerList(bedrockStatus.players, 'bedrock-player-list');
+                } else {
+                    document.getElementById('bedrock-status').innerHTML = '<span class="status-offline">오프라인</span>';
+                    document.getElementById('bedrock-version').textContent = '버전: -';
+                    document.getElementById('bedrock-players').textContent = '플레이어: -';
+                    document.getElementById('bedrock-ping').textContent = '핑: -';
+                    if (bedrockIcon) bedrockIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
+                    document.getElementById('bedrock-player-list').innerHTML = '';
+                }
 
-	        if (javaStatus.online) {
-	            document.getElementById('java-status')!.innerHTML = '<span class="status-online">온라인</span>';
-	            document.getElementById('java-version')!.textContent = `버전: ${javaStatus.version || '알 수 없음'}`;
-	            document.getElementById('java-players')!.textContent = `플레이어: ${javaStatus.players.online} / ${javaStatus.players.max}`;
-	            document.getElementById('java-ping')!.textContent = `핑: ${javaStatus.debug?.ping || '-'}`;
-	            if (javaIcon) setServerIcon(javaIcon, javaStatus.icon);
-	            displayPlayerList(javaStatus.players, 'java-player-list');
-	        } else {
-	            document.getElementById('java-status')!.innerHTML = '<span class="status-offline">오프라인</span>';
-	            document.getElementById('java-version')!.textContent = '버전: -';
-	            document.getElementById('java-players')!.textContent = '플레이어: -';
-	            document.getElementById('java-ping')!.textContent = '핑: -';
-	            if (javaIcon) javaIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
-	            document.getElementById('java-player-list')!.innerHTML = '';
-	        }
-
-	        if (bedrockStatus.online) {
-	            document.getElementById('bedrock-status')!.innerHTML = '<span class="status-online">온라인</span>';
-	            document.getElementById('bedrock-version')!.textContent = `버전: ${bedrockStatus.version || '알 수 없음'}`;
-	            document.getElementById('bedrock-players')!.textContent = `플레이어: ${bedrockStatus.players.online} / ${bedrockStatus.players.max}`;
-	            document.getElementById('bedrock-ping')!.textContent = `핑: ${bedrockStatus.debug?.ping || '지원 안함'}`;
-	            if (bedrockIcon) setServerIcon(bedrockIcon, bedrockStatus.icon);
-	            displayPlayerList(bedrockStatus.players, 'bedrock-player-list');
-	        } else {
-	            document.getElementById('bedrock-status')!.innerHTML = '<span class="status-offline">오프라인</span>';
-	            document.getElementById('bedrock-version')!.textContent = '버전: -';
-	            document.getElementById('bedrock-players')!.textContent = '플레이어: -';
-	            document.getElementById('bedrock-ping')!.textContent = '핑: -';
-	            if (bedrockIcon) bedrockIcon.src = 'https://static.vecteezy.com/system/resources/previews/019/551/975/non_2x/error-page-page-not-found-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg';
-	            document.getElementById('bedrock-player-list')!.innerHTML = '';
-	        }
-
-	        Swal.close();
-	    } catch (error) {
-	        console.error('Error updating server status:', error);
-	        Swal.fire({
-	            icon: 'error',
-	            title: '오류 발생',
-	            text: '서버 상태를 확인하는 중 문제가 발생했습니다.',
-	        });
-	    }
-	};
+                Swal.close();
+            } catch (error) {
+                console.error('Error updating server status:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류 발생',
+                    text: '서버 상태를 확인하는 중 문제가 발생했습니다.',
+                });
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             updateStatus();
