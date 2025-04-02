@@ -1,48 +1,40 @@
-# Astro Starter Kit: Basics
+# Minecraft 서버 상태 확인 웹앱
 
-```sh
-npm create astro@latest -- --template basics
-```
+이 프로젝트는 Minecraft 서버 상태를 확인할 수 있는 Astro 기반 웹 애플리케이션입니다. RPG 서버와 Survival 서버의 상태를 실시간으로 모니터링하여 온라인 여부, 현재 접속 플레이어, 서버 버전 등의 정보를 제공합니다.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## 주요 기능
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- RPG 서버 및 Survival 서버 상태 실시간 확인
+- 서버별 온라인/오프라인 상태 표시
+- 현재 접속 중인 플레이어 목록 표시
+- 서버 버전 및 핑 정보 제공
+- 자동 새로고침 기능 (1분 간격)
+- 모바일 및 데스크톱 반응형 디자인
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+## 기술 스택
 
-## 🚀 Project Structure
+- Astro.js
+- Tailwind CSS
+- SweetAlert2
+- MCServerStatus API
 
-Inside of your Astro project, you'll see the following folders and files:
+## 사용 방법
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+1. 웹페이지에 접속하면 자동으로 서버 상태를 확인합니다.
+2. 서버 상태 확인 중에는 로딩 화면이 표시됩니다.
+3. 각 서버 카드에서 서버의 상태 정보를 확인할 수 있습니다.
+4. 서버가 온라인일 경우, 현재 플레이어 목록이 표시됩니다.
+5. 페이지는 1분마다 자동으로 새로고침됩니다.
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## 서버 정보
 
-## 🧞 Commands
+- RPG 서버: minecraft.pixelhize.xyz
+- Survival 서버: sunrintmc.byeolki.me
 
-All commands are run from the root of the project, from a terminal:
+## 개발자 정보
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+개발자: pixelhize
 
-## 👀 Want to learn more?
+## 참고 사항
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+경우에 따라 서버가 정상 작동 중임에도 오프라인으로 표시될 수 있습니다.
